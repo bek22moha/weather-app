@@ -1,8 +1,16 @@
+import cityConfig from "../../config.json";
+
 export default async function handler(req, res) {
-  const { cityInput } = req.body;
-  const getWeatherData = await fetch(
-    `https://api.openweathermap.org/data/2.5/weather?q=${cityInput}&units=metric&appid=${process.env.OPENWEATHER_API_KEY}`
-  );
-  const data = await getWeatherData.json();
-  res.status(200).json(data);
+  try {
+    const { latitude, longitude } = cityConfig;
+
+    const response = await fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=temperature_2m,relative_humidity_2m,visibility&daily=sunrise,sunset&timezone=Europe/Paris`
+    );
+
+    const data = await response.json();
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ error: "Erreur lors de la récupération des données" });
+  }
 }

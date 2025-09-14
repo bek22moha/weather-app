@@ -1,41 +1,23 @@
-import {
-  unixToLocalTime,
-  kmToMiles,
-  mpsToMph,
-  timeTo12HourFormat,
-} from "./converters";
+import { kmToMiles, mpsToMph } from "./converters";
 
 export const getWindSpeed = (unitSystem, windInMps) =>
-  unitSystem == "metric" ? windInMps : mpsToMph(windInMps);
+  unitSystem === "metric" ? windInMps : mpsToMph(windInMps);
 
 export const getVisibility = (unitSystem, visibilityInMeters) =>
-  unitSystem == "metric"
-    ? (visibilityInMeters / 1000).toFixed(1)
-    : kmToMiles(visibilityInMeters / 1000);
+  visibilityInMeters
+    ? unitSystem === "metric"
+      ? (visibilityInMeters / 1000).toFixed(1)
+      : kmToMiles(visibilityInMeters / 1000)
+    : "N/A";
 
-export const getTime = (unitSystem, currentTime, timezone) =>
-  unitSystem == "metric"
-    ? unixToLocalTime(currentTime, timezone)
-    : timeTo12HourFormat(unixToLocalTime(currentTime, timezone));
+export const getTime = (timeString) => {
+  if (!timeString) return "";
+  const date = new Date(timeString);
+  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+};
 
-export const getAMPM = (unitSystem, currentTime, timezone) =>
-  unitSystem === "imperial"
-    ? unixToLocalTime(currentTime, timezone).split(":")[0] >= 12
-      ? "PM"
-      : "AM"
-    : "";
-
-export const getWeekDay = (weatherData) => {
-  const weekday = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
-  return weekday[
-    new Date((weatherData.dt + weatherData.timezone) * 1000).getUTCDay()
-  ];
+export const getAMPM = (timeString) => {
+  if (!timeString) return "";
+  const hours = new Date(timeString).getHours();
+  return hours >= 12 ? "PM" : "AM";
 };
